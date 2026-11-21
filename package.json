@@ -1,0 +1,13 @@
+{
+  "name": "bitcoin-poisson-unisinos",
+  "version": "1.0.0",
+  "description": "Laboratório interativo: os blocos do Bitcoin chegam como um processo de Poisson? (Probabilidade e Inferência Estatística, PPGCA/Unisinos)",
+  "type": "module",
+  "license": "MIT",
+  "author": "Epitácio Vicente do Nascimento Neto",
+  "repository": { "type": "git", "url": "git+https://github.com/epineto/bitcoin-poisson-unisinos.git" },
+  "homepage": "https://epineto.github.io/bitcoin-poisson-unisinos/",
+  "private": true,
+  "scripts": { "test": "node --test tests/", "serve": "python3 -m http.server 8000" },
+  "engines": { "node": ">=18" }
+}

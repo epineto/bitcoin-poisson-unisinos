@@ -1,0 +1,4 @@
+_capturas/
+__pycache__/
+node_modules/
+*.pyc

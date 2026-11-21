@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Laboratório Bitcoin e Poisson: os blocos chegam ao acaso?</title>
+<meta name="description" content="Laboratório interativo de Probabilidade e Inferência Estatística: simule a chegada de blocos do Bitcoin, compare com 20 mil blocos reais e explore intervalos, contagens, ausência de memória e risco de espera longa. PPGCA/Unisinos.">
+<meta name="theme-color" content="#1D2369">
+<meta name="author" content="Epitácio Vicente do Nascimento Neto">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Laboratório Bitcoin e Poisson · Unisinos">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Os blocos do Bitcoin chegam como um processo de Poisson?">
+<meta property="og:description" content="Simulador, histogramas, QQ-plot, contagem por janela, ausência de memória e risco de espera, com 20 mil blocos reais.">
+<meta property="og:url" content="https://epineto.github.io/bitcoin-poisson-unisinos/">
+<link rel="stylesheet" href="style.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="cab">
+  <div class="cab-in">
+    <img class="logo" src="assets/logo_unisinos.png" alt="Unisinos" width="133" height="34">
+    <div class="titulos">
+      <p class="cab-t">Laboratório Bitcoin e Poisson</p>
+      <p class="cab-s">Probabilidade e Inferência Estatística · Trabalho final · PPGCA/Unisinos</p>
+    </div>
+    <button type="button" id="tema-btn" class="tema-btn" aria-pressed="false" aria-label="Alternar entre tema claro e escuro" title="Alternar entre tema claro e escuro">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path class="ic-lua" d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/><g class="ic-sol" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>
+    </button>
+  </div>
+</header>
+
+<nav class="nav" aria-label="Seções">
+  <ul class="nav-in">
+    <li><a href="#inicio">Início</a></li>
+    <li><a href="#simulador">Simulador</a></li>
+    <li><a href="#intervalos">Intervalos</a></li>
+    <li><a href="#contagem">Contagem</a></li>
+    <li><a href="#memoria">Memória</a></li>
+    <li><a href="#espera">Espera</a></li>
+    <li><a href="#dados">Dados</a></li>
+  </ul>
+</nav>
+
+<main id="conteudo" tabindex="-1">
+<noscript><p class="aviso">Este laboratório precisa de JavaScript e de um servidor HTTP (ver README).</p></noscript>
+<p id="erro-carga" class="aviso" role="alert" hidden></p>
+
+<!-- ============================ INÍCIO ============================ -->
+<section id="inicio" class="sec" aria-labelledby="inicio-tit">
+  <div class="hero"><div class="hero-in"><div>
+    <img class="hero-logo" src="assets/logo_unisinos.png" alt="Unisinos" width="200" height="51">
+    <h2 id="inicio-tit">Os blocos do Bitcoin chegam como um processo de Poisson?</h2>
+    <ul class="problema">
+      <li>Em média, um novo bloco do Bitcoin aparece a cada <strong>10 minutos</strong>. Mas o momento exato de cada bloco parece <strong>sorteado</strong>: às vezes dois blocos saem em segundos, às vezes passa mais de uma hora sem nenhum.</li>
+      <li>A pergunta deste trabalho é simples: esse “acaso” segue um modelo conhecido, o <strong>processo de Poisson</strong>? Se sim, os <strong>intervalos</strong> entre blocos seguem a distribuição <strong>Exponencial</strong> e a <strong>contagem</strong> por hora segue a <strong>Poisson</strong>.</li>
+      <li>Aqui é possível <strong>simular</strong> o processo, <strong>conferir</strong> com 20 mil blocos reais e ver onde o modelo acerta e onde falha.</li>
+    </ul>
+  </div><div class="hero-nums" id="hero-nums"></div></div></div>
+
+  <div class="cartao">
+    <h3>A ideia em três passos</h3>
+    <div class="passos">
+      <figure class="passo"><svg viewBox="0 0 240 90" role="img" aria-label="Linha do tempo com blocos em instantes irregulares"><line x1="10" y1="60" x2="230" y2="60" stroke="currentColor" stroke-width="2"/><g fill="var(--azul2)"><rect x="22" y="44" width="14" height="14" rx="3"/><rect x="48" y="44" width="14" height="14" rx="3"/><rect x="118" y="44" width="14" height="14" rx="3"/><rect x="132" y="44" width="14" height="14" rx="3"/><rect x="196" y="44" width="14" height="14" rx="3"/></g></svg>
+        <figcaption>1. Chegadas independentes</figcaption><p>Um bloco não “sabe” quando o anterior saiu. A taxa média é constante: 6 blocos por hora.</p></figure>
+      <figure class="passo"><svg viewBox="0 0 240 90" role="img" aria-label="Curva exponencial decrescente"><path d="M14 16 C 40 50, 80 70, 226 78" fill="none" stroke="var(--verm)" stroke-width="3"/><line x1="14" y1="80" x2="226" y2="80" stroke="currentColor"/></svg>
+        <figcaption>2. Intervalos Exponenciais</figcaption><p>O tempo entre dois blocos segue a Exponencial: muitos curtos, poucos muito longos.</p></figure>
+      <figure class="passo"><svg viewBox="0 0 240 90" role="img" aria-label="Barras de contagem em formato de sino"><g fill="var(--azul2)"><rect x="30" y="66" width="18" height="14"/><rect x="52" y="46" width="18" height="34"/><rect x="74" y="24" width="18" height="56"/><rect x="96" y="14" width="18" height="66"/><rect x="118" y="26" width="18" height="54"/><rect x="140" y="46" width="18" height="34"/><rect x="162" y="64" width="18" height="16"/></g><line x1="20" y1="80" x2="200" y2="80" stroke="currentColor"/></svg>
+        <figcaption>3. Contagens de Poisson</figcaption><p>O número de blocos em uma hora oscila em torno de 6, com variância igual à média.</p></figure>
+    </div>
+  </div>
+
+  <div class="grade3">
+    <a class="atalho" href="#simulador"><strong>Simulador</strong><span>Blocos chegando ao vivo, histograma crescendo e a curva Exponencial por cima. Dá para trocar para a série real.</span></a>
+    <a class="atalho" href="#intervalos"><strong>Intervalos</strong><span>Histograma e QQ-plot dos intervalos reais; Exponencial, Gama ou Weibull, com AIC.</span></a>
+    <a class="atalho" href="#contagem"><strong>Contagem</strong><span>Blocos por janela de tempo contra a Poisson e o índice de dispersão.</span></a>
+    <a class="atalho" href="#memoria"><strong>Memória</strong><span>“Já esperei s minutos”: a espera que falta muda? Dados reais, simulados e um contraexemplo.</span></a>
+    <a class="atalho" href="#espera"><strong>Espera</strong><span>Qual a chance de esperar mais de X minutos? Modelo contra observado e padrão por hora do dia.</span></a>
+    <a class="atalho" href="#dados"><strong>Dados</strong><span>Ciclos de dificuldade, o problema dos horários fora de ordem e as limitações.</span></a>
+  </div>
+
+  <div class="cartao cartao-aviso">
+    <h3>Leitura honesta</h3>
+    <p>Os dados cobrem <strong id="ini-periodo">um único período</strong>. O horário de cada bloco é <strong>declarado pelo minerador</strong> e às vezes sai de ordem. Com 20 mil blocos, até diferenças pequenas viram “estatisticamente detectáveis”: o que importa é o <strong>tamanho</strong> do desvio, não só o p-valor. Detalhes em <a href="#dados">Dados</a>.</p>
+  </div>
+</section>
+
+<!-- ============================ SIMULADOR ============================ -->
+<section id="simulador" class="sec" aria-labelledby="sim-tit">
+  <h2 id="sim-tit">Simulador: blocos chegando ao acaso</h2>
+  <p class="lead">Cada quadrado é um bloco. A linha mostra o tempo; o número entre dois blocos é o intervalo em minutos (vermelho quando passa de 30). À direita embaixo, o histograma dos intervalos vai se formando e se aproxima da curva Exponencial.</p>
+
+  <div class="cartao">
+    <div class="linha-topo">
+      <div class="seg" role="group" aria-label="Origem dos intervalos">
+        <button type="button" id="sim-modo-sim" aria-pressed="true">Simulada (Poisson)</button>
+        <button type="button" id="sim-modo-real" aria-pressed="false">Série real do Bitcoin</button>
+      </div>
+      <p class="mini" id="sim-modo-txt"></p>
+    </div>
+    <canvas id="sim-linha" class="canvas-linha" role="img" aria-label="Linha do tempo animada com a chegada dos blocos"></canvas>
+    <p class="so-leitor" id="sim-sr" aria-live="off"></p>
+    <div class="linha-ctrl">
+      <div class="campo"><label for="sim-taxa">Taxa: <output id="sim-taxa-v"></output></label><input type="range" id="sim-taxa" min="1" max="12" step="0.5" value="6"></div>
+      <div class="campo"><label for="sim-vel">Velocidade: <output id="sim-vel-v"></output></label><input type="range" id="sim-vel" min="1" max="120" step="1" value="20"></div>
+      <div class="campo"><label for="sim-semente">Semente</label><input type="text" inputmode="numeric" id="sim-semente" value="2026"></div>
+    </div>
+    <div class="botoes">
+      <button type="button" class="btn primario" id="sim-play">Pausar</button>
+      <button type="button" class="btn" id="sim-100">+100 blocos</button>
+      <button type="button" class="btn" id="sim-1000">+1.000 blocos</button>
+      <button type="button" class="btn" id="sim-reiniciar">Reiniciar</button>
+    </div>
+    <div class="linha-chips">
+      <label class="chip-check"><input type="checkbox" id="sim-dens" checked> <span>Curva Exponencial teórica</span></label>
+      <label class="chip-check"><input type="checkbox" id="sim-real-ctn"> <span>Contorno do histograma real</span></label>
+    </div>
+  </div>
+
+  <div class="grade2">
+    <div class="cartao">
+      <h3>Contador e últimos intervalos</h3>
+      <dl class="hud" id="sim-hud"></dl>
+      <ol class="ultimos" id="sim-ultimos" aria-label="Últimos intervalos"></ol>
+      <p class="msg-chave" id="sim-leitura"></p>
+    </div>
+    <div class="cartao">
+      <h3>Histograma dos intervalos</h3>
+      <canvas id="sim-hist" class="grafico" role="img" aria-label="Histograma dos intervalos simulados com a densidade exponencial"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ INTERVALOS ============================ -->
+<section id="intervalos" class="sec" aria-labelledby="int-tit">
+  <h2 id="int-tit">Intervalos: qual modelo descreve melhor?</h2>
+  <p class="lead">Os 19.990 intervalos reais entre blocos. Escolher um modelo e mexer nos parâmetros mostra o ajuste. O <strong>AIC</strong> pontua o modelo (menor é melhor, com uma penalidade por parâmetro extra). No <strong>QQ-plot</strong>, quanto mais colados na diagonal, melhor o modelo.</p>
+  <div class="grade-lado">
+    <div class="cartao">
+      <fieldset><legend>Modelo</legend>
+        <div class="seg" role="radiogroup" aria-label="Modelo" id="int-modelo">
+          <button type="button" role="radio" aria-checked="true" data-m="Exponencial">Exponencial</button>
+          <button type="button" role="radio" aria-checked="false" data-m="Gama">Gama</button>
+          <button type="button" role="radio" aria-checked="false" data-m="Weibull">Weibull</button>
+        </div>
+      </fieldset>
+      <div class="campo" id="int-c1"><label for="int-p1"><span id="int-p1-nome">Média (min)</span>: <output id="int-p1-v"></output></label><input type="range" id="int-p1" min="5" max="15" step="0.05" value="10"></div>
+      <div class="campo" id="int-c2"><label for="int-p2"><span id="int-p2-nome">Escala (min)</span>: <output id="int-p2-v"></output></label><input type="range" id="int-p2" min="1" max="20" step="0.05" value="10"></div>
+      <div class="campo"><label for="int-bins">Largura das barras: <output id="int-bins-v"></output></label><input type="range" id="int-bins" min="1" max="6" step="0.5" value="2"></div>
+      <div class="botoes"><button type="button" class="btn primario" id="int-mv">Usar máxima verossimilhança</button></div>
+      <dl class="hud hud1" id="int-hud"></dl>
+      <p class="msg-chave" id="int-leitura"></p>
+    </div>
+    <div class="coluna">
+      <div class="cartao"><h3>Histograma e curva do modelo</h3><canvas id="int-hist" class="grafico grafico-g" role="img" aria-label="Histograma dos intervalos reais com a densidade do modelo escolhido"></canvas></div>
+      <div class="cartao"><h3>QQ-plot: quantis reais contra quantis do modelo</h3><canvas id="int-qq" class="grafico grafico-g" role="img" aria-label="Gráfico quantil-quantil dos intervalos reais contra o modelo escolhido"></canvas></div>
+    </div>
+  </div>
+  <div class="cartao">
+    <h3>Comparação dos modelos (parâmetros por máxima verossimilhança, resultados do Python)</h3>
+    <div class="rolagem"><table class="tab" id="int-tab"><thead><tr><th>Modelo</th><th>Parâmetros</th><th>AIC</th><th>ΔAIC</th><th>BIC</th></tr></thead><tbody></tbody></table></div>
+    <p class="mini">A Gama e a Weibull têm forma ≈ 1, que é exatamente a Exponencial. A log-normal (também testada no trabalho) fica bem pior.</p>
+  </div>
+</section>
+
+<!-- ============================ CONTAGEM ============================ -->
+<section id="contagem" class="sec" aria-labelledby="con-tit">
+  <h2 id="con-tit">Contagem: blocos por janela de tempo</h2>
+  <p class="lead">Dividir o tempo em janelas iguais e contar os blocos de cada uma. Se o processo é de Poisson, as barras seguem a curva de Poisson e a <strong>variância é igual à média</strong>: o <strong>índice de dispersão</strong> (variância ÷ média) fica perto de 1. Acima de 1 há “aglomeração”; abaixo, regularidade.</p>
+  <div class="grade-lado">
+    <div class="cartao">
+      <div class="campo"><label for="con-w">Tamanho da janela: <output id="con-w-v"></output></label><input type="range" id="con-w" min="5" max="240" step="5" value="60"></div>
+      <dl class="hud hud1" id="con-hud"></dl>
+      <p class="msg-chave" id="con-leitura"></p>
+      <p class="mini">Aqui as janelas partem do primeiro bloco; o relatório usa horas cheias (3.318 horas, índice 1,04). Os números são parecidos.</p>
+    </div>
+    <div class="coluna">
+      <div class="cartao"><h3>Quantas janelas tiveram k blocos</h3><canvas id="con-barras" class="grafico grafico-g" role="img" aria-label="Frequência observada de blocos por janela contra a distribuição de Poisson"></canvas></div>
+    </div>
+  </div>
+  <div class="grade2">
+    <div class="cartao"><h3>Blocos por janela ao longo do tempo</h3><canvas id="con-serie" class="grafico" role="img" aria-label="Contagem de blocos nas primeiras janelas"></canvas><p class="mini">As primeiras 150 janelas.</p></div>
+    <div class="cartao"><h3>E o acaso? Monte Carlo</h3><canvas id="con-mc" class="grafico" role="img" aria-label="Distribuição do índice de dispersão em séries simuladas, com o valor observado marcado"></canvas><p class="mini" id="con-mc-txt"></p></div>
+  </div>
+</section>
+
+<!-- ============================ MEMÓRIA ============================ -->
+<section id="memoria" class="sec" aria-labelledby="mem-tit">
+  <h2 id="mem-tit">Ausência de memória: esperar mais ajuda?</h2>
+  <p class="lead">Na Exponencial, <strong>quem já esperou s minutos não está “mais perto” do próximo bloco</strong>: a espera que falta tem a mesma distribuição de uma espera nova. Abaixo, a curva azul é a chance de esperar mais de x minutos desde um bloco; a vermelha é a mesma chance <strong>para quem já esperou s</strong>. Se coincidem, não há memória.</p>
+  <div class="grade-lado">
+    <div class="cartao">
+      <fieldset><legend>Dados</legend>
+        <div class="seg seg-v" role="radiogroup" aria-label="Fonte dos dados" id="mem-fonte">
+          <button type="button" role="radio" aria-checked="true" data-f="real">Real (Bitcoin)</button>
+          <button type="button" role="radio" aria-checked="false" data-f="exp">Simulado: Exponencial</button>
+          <button type="button" role="radio" aria-checked="false" data-f="gama">Contraexemplo: Gama (forma 3)</button>
+        </div>
+      </fieldset>
+      <div class="campo"><label for="mem-s">Já esperou s = <output id="mem-s-v"></output></label><input type="range" id="mem-s" min="0" max="60" step="1" value="20"></div>
+      <div class="campo"><label for="mem-t">Quer saber mais t = <output id="mem-t-v"></output></label><input type="range" id="mem-t" min="1" max="60" step="1" value="10"></div>
+      <div class="campo"><label for="mem-semente">Semente (simulados)</label><input type="text" inputmode="numeric" id="mem-semente" value="7"></div>
+      <dl class="hud hud1" id="mem-hud"></dl>
+      <p class="msg-chave" id="mem-leitura"></p>
+    </div>
+    <div class="coluna">
+      <div class="cartao"><h3>Chance de a espera passar de x minutos</h3><canvas id="mem-graf" class="grafico grafico-g" role="img" aria-label="Curvas de sobrevivência incondicional e condicional a já ter esperado s minutos"></canvas></div>
+      <div class="cartao"><h3>Os sete pares (s, t) testados no trabalho</h3><div class="rolagem"><table class="tab" id="mem-tab"><thead><tr><th>s (min)</th><th>t (min)</th><th>Sobreviventes</th><th>P(T &gt; s+t | T &gt; s)</th><th>P(T &gt; t)</th><th>Diferença (IC 95%)</th></tr></thead><tbody></tbody></table></div><p class="mini">Células em destaque: o IC de 95% exclui o zero. Com vários testes, isso deve ser lido com cautela.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ ESPERA ============================ -->
+<section id="espera" class="sec" aria-labelledby="esp-tit">
+  <h2 id="esp-tit">Espera: qual o risco de ficar sem bloco?</h2>
+  <p class="lead">Calculadora do risco: qual a chance de um intervalo passar de <strong>X minutos</strong>? O modelo Exponencial (vermelho) e o observado nos blocos reais (azul) vêm com intervalos de confiança de 95% por bootstrap, pré-calculados.</p>
+  <div class="grade-lado">
+    <div class="cartao">
+      <div class="campo"><label for="esp-x">Esperar mais de X = <output id="esp-x-v"></output></label><input type="range" id="esp-x" min="1" max="120" step="1" value="30"></div>
+      <div class="linha-chips"><label class="chip-check"><input type="checkbox" id="esp-log"> <span>Escala logarítmica</span></label></div>
+      <dl class="hud hud1" id="esp-hud"></dl>
+      <p class="msg-chave" id="esp-leitura"></p>
+    </div>
+    <div class="coluna">
+      <div class="cartao"><h3>P(intervalo &gt; X): modelo e observado</h3><canvas id="esp-graf" class="grafico grafico-g" role="img" aria-label="Probabilidade de esperar mais de X minutos, modelo e observado com intervalos de confiança"></canvas></div>
+    </div>
+  </div>
+  <div class="cartao">
+    <h3>Existe hora do dia pior? (horário UTC)</h3>
+    <p class="mini" id="esp-hora-txt"></p>
+    <div class="grade2">
+      <figure><figcaption>Média de blocos por hora, por hora do dia</figcaption><canvas id="esp-hora" class="grafico" role="img" aria-label="Média de blocos por hora para cada hora do dia, com a faixa esperada pelo acaso"></canvas></figure>
+      <figure><figcaption>Mapa de calor: dia da semana × hora</figcaption><canvas id="esp-calor" class="grafico" role="img" aria-label="Mapa de calor da média de blocos por hora, por dia da semana e hora do dia"></canvas></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ DADOS ============================ -->
+<section id="dados" class="sec" aria-labelledby="dad-tit">
+  <h2 id="dad-tit">Dados, ciclos de dificuldade e limitações</h2>
+  <div class="grade2">
+    <div class="cartao">
+      <h3>Taxa por ciclo de dificuldade</h3>
+      <p class="mini">A cada 2.016 blocos o protocolo reajusta a dificuldade para manter a média perto de 10 minutos. Cada barra é um ciclo completo (vermelho: mais lento que o alvo; azul: mais rápido).</p>
+      <canvas id="dad-ciclos" class="grafico grafico-g" role="img" aria-label="Intervalo médio por ciclo de dificuldade, com a linha do alvo de 10 minutos"></canvas>
+      <p class="msg-chave" id="dad-ciclos-txt"></p>
+    </div>
+    <div class="cartao">
+      <h3>O problema dos horários fora de ordem</h3>
+      <p>O horário do bloco é <strong>declarado pelo minerador</strong>. Em <span id="dad-pct"></span> dos intervalos o bloco seguinte traz horário igual ou anterior. Como tratar isso muda a conclusão:</p>
+      <div class="seg seg-v" role="radiogroup" aria-label="Tratamento dos horários ruins" id="dad-trat">
+        <button type="button" role="radio" aria-checked="true" data-t="ordenar">Ordenar os horários (principal)</button>
+        <button type="button" role="radio" aria-checked="false" data-t="descartar">Descartar os intervalos ruins</button>
+        <button type="button" role="radio" aria-checked="false" data-t="trocar_por_1s">Trocar por 1 segundo</button>
+      </div>
+      <dl class="hud hud1" id="dad-hud"></dl>
+      <p class="msg-chave" id="dad-trat-txt"></p>
+    </div>
+  </div>
+  <div class="cartao">
+    <h3>Limitações e o que os resultados não permitem concluir</h3>
+    <ul class="lista">
+      <li><strong>Um único período</strong> de 4,5 meses: outros períodos podem se comportar de outro jeito.</li>
+      <li><strong>Horário declarado pelo minerador</strong>: a ordenação é uma correção, não uma verdade. A conclusão depende dela.</li>
+      <li><strong>Taxa que varia</strong> entre ciclos (a permutação indica diferença maior que o acaso) mistura taxas diferentes e explica, em parte, o pequeno excesso de esperas longas.</li>
+      <li><strong>Amostra grande detecta desvio pequeno</strong>: o teste rejeita a Exponencial exata (p = 0,035), mas o desvio tem tamanho mínimo. Para uso prático, a Exponencial é uma excelente aproximação.</li>
+      <li><strong>Sem causalidade</strong> e nada sobre preço ou mercado. Eventos raros (acima de 90 min: só 2 casos) têm incerteza grande.</li>
+    </ul>
+  </div>
+  <div class="cartao">
+    <h3>Sobre este laboratório</h3>
+    <p>Aplicação estática (HTML, CSS e JavaScript puro, sem build). Todos os números vêm de 20.000 blocos consecutivos baixados de <code>mempool.space</code> e processados pelo Python do trabalho; as funções numéricas em JavaScript são testadas contra o scipy (<code>npm test</code>). Autor: Epitácio Vicente do Nascimento Neto. Disciplina: Prof. Dr. Daniel Capella Zanotta. Referências: Nakamoto (2008), <em>Bitcoin: A Peer-to-Peer Electronic Cash System</em>; Ross, <em>Introduction to Probability Models</em>; Casella e Berger, <em>Statistical Inference</em>.</p>
+    <dl class="protocolo" id="dad-proto"></dl>
+  </div>
+</section>
+</main>
+
+<footer class="rodape">
+  <p>Laboratório Bitcoin e Poisson · Probabilidade e Inferência Estatística · PPGCA/Unisinos 2026/2 · Licença MIT</p>
+  <p>Epitácio Vicente do Nascimento Neto</p>
+  <p><a href="https://github.com/epineto/bitcoin-poisson-unisinos" rel="noopener">github.com/epineto/bitcoin-poisson-unisinos</a></p>
+</footer>
+<script type="module" src="src/ui/app.js"></script>
+</body>
+</html>

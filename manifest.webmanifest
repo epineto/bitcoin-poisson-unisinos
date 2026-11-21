@@ -1,0 +1,14 @@
+{
+  "name": "Laboratório Bitcoin e Poisson",
+  "short_name": "Lab Bitcoin·Poisson",
+  "description": "Simule a chegada de blocos do Bitcoin e compare com 20 mil blocos reais, no navegador.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "browser",
+  "background_color": "#F4F6FB",
+  "theme_color": "#1D2369",
+  "icons": [
+    { "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
