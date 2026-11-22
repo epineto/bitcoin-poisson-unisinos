@@ -113,7 +113,7 @@ figcaption { font-size: .85rem; font-weight: 700; color: var(--titulo); margin-b
 
 /* hero */
 .hero { background: linear-gradient(135deg, var(--azul) 0%, #2B3590 100%); color: #fff; border-radius: 12px; padding: 1.4rem 1.5rem 1.2rem; margin-bottom: 1rem; box-shadow: var(--sombra); }
-.hero h2 { color: #fff; font-size: 1.6rem; margin: .8rem 0 .6rem; max-width: none; text-wrap: balance; }
+.hero h2 { color: #fff; font-size: 1.6rem; margin: .8rem 0 .6rem; max-width: none; text-wrap: wrap; }
 .hero-logo { height: 48px; width: auto; background: #fff; border-radius: 8px; padding: 5px 9px; display: block; }
 .hero a { color: #fff; }
 .problema { margin: 0; padding-left: 1.2rem; max-width: 84ch; }
@@ -263,7 +263,7 @@ fieldset { margin-bottom: .8rem; }
 .ultimos li i.longo { background: var(--c-mod); }
 .dica-g { position: absolute; z-index: 5; pointer-events: none; background: var(--cartao); color: var(--texto); border: 1px solid var(--borda); border-radius: 6px; box-shadow: var(--sombra); padding: .35rem .55rem; font-size: .8rem; line-height: 1.4; white-space: nowrap; }
 .dica-g b { display: block; margin-bottom: .1rem; color: var(--titulo); }
-.hero h2 { text-wrap: balance; }
+.hero h2 { text-wrap: wrap; }
 .tab td.piora { background: var(--aviso-bg); color: var(--aviso-t); }
 .tab th[scope="row"] { white-space: nowrap; }
 @media (max-width: 900px) {
@@ -286,6 +286,7 @@ fieldset { margin-bottom: .8rem; }
 
 /* Ajuste do alinhamento do título e do texto na faixa inicial */
 .hero-in { align-items: start; }
-.hero h2 { margin: 1rem 0 .9rem; text-align: left; text-wrap: balance; }
+.hero h2 { margin: 1rem 0 .9rem; text-align: left; text-wrap: wrap; max-width: none; }
 .hero .problema { text-align: left; hyphens: none; -webkit-hyphens: none; }
 .hero .problema li { text-align: left; hyphens: none; }
+@media (min-width: 821px) { .hero h2 { font-size: 1.42rem; } }
