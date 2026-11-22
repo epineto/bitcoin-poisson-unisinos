@@ -1,11 +1,14 @@
-// Utilidades de DOM, formatação em pt-BR e cores lidas das variáveis CSS (acompanham o tema claro/escuro).
+// Utilidades de DOM, formatação numérica conforme o idioma (pt-BR ou en) e cores lidas das variáveis CSS (acompanham o tema claro/escuro).
+import { getLang, onLang } from './i18n.js';
+
 export const $ = (s, r = document) => r.querySelector(s);
 export const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 export const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-/** Número com vírgula decimal e `d` casas. */
-export const fmt = (v, d = 2) => (Number.isFinite(v) ? v.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d }) : '–');
-export const fmtInt = (v) => (Number.isFinite(v) ? Math.round(v).toLocaleString('pt-BR') : '–');
+const loc = () => (getLang() === 'pt' ? 'pt-BR' : 'en-US');
+/** Número com `d` casas: vírgula decimal em português, ponto em inglês. */
+export const fmt = (v, d = 2) => (Number.isFinite(v) ? v.toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d }) : '–');
+export const fmtInt = (v) => (Number.isFinite(v) ? Math.round(v).toLocaleString(loc()) : '–');
 export const pct = (v, d = 1) => fmt(v * 100, d) + '%';
 
 let _estilo = null, _chave = '';
@@ -42,5 +45,6 @@ export function slider(id, formatar, aoMudar) {
   const atualizar = () => { if (saida) saida.textContent = formatar(atual()); };
   e.addEventListener('input', () => { atualizar(); aoMudar?.(atual()); });
   atualizar();
+  onLang(atualizar);   // o texto formatado muda com o idioma; o valor do slider não
   return atual;
 }

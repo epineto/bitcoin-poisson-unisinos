@@ -1,5 +1,6 @@
-// Ponto de entrada: tema, roteamento por âncora (#inicio … #dados), carga dos dados e inicialização das seções.
+// Ponto de entrada: idioma, tema, roteamento por âncora (#inicio … #dados), carga dos dados e inicialização das seções.
 import { iniciarTema } from './tema.js';
+import { iniciar as iniciarIdioma, t, onLang } from './i18n.js';
 import { $, $$ } from './util.js';
 import { carregarDados } from '../core/dados.js';
 import { media, ordenar } from '../core/estat.js';
@@ -14,6 +15,14 @@ import { iniciarDados } from './secao_dados.js';
 const SECOES = ['inicio', 'simulador', 'intervalos', 'contagem', 'memoria', 'espera', 'dados'];
 const modulos = {};
 let atual = null;
+let erroCarga = null;   // mensagem de erro da carga, traduzida de novo se o idioma mudar
+
+function mostrarErro() {
+  const er = $('#erro-carga');
+  if (!erroCarga) { er.hidden = true; return; }
+  er.hidden = false;
+  er.textContent = t('erro.carga', { m: erroCarga });
+}
 
 function rota(primeira) {
   const h = decodeURIComponent(location.hash.slice(1));
@@ -28,6 +37,8 @@ function rota(primeira) {
 }
 
 async function main() {
+  iniciarIdioma();
+  onLang(mostrarErro);
   iniciarTema();
   rota(true);
   window.addEventListener('hashchange', () => rota(false));
@@ -41,9 +52,8 @@ async function main() {
     rota(true);
     document.documentElement.dataset.pronto = '1';
   } catch (e) {
-    const er = $('#erro-carga');
-    er.hidden = false;
-    er.textContent = `Não foi possível carregar os dados (${e.message}). Servir a pasta por HTTP (ver README).`;
+    erroCarga = e.message;
+    mostrarErro();
     console.error(e);
   }
 }
