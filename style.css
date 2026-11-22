@@ -277,3 +277,9 @@ fieldset { margin-bottom: .8rem; }
 .sec > h2 + .grade2, .sec > h2 + .cartao { margin-top: .8rem; }
 .cartao table + h3, .cartao ul + h3 { margin-top: 1.1rem; }
 .rolagem .tab th, .rolagem .tab td { white-space: nowrap; }
+
+/* Ajuste do alinhamento do título e do texto na faixa inicial */
+.hero-in { align-items: start; }
+.hero h2 { margin: 1rem 0 .9rem; text-align: left; text-wrap: balance; }
+.hero .problema { text-align: left; hyphens: none; -webkit-hyphens: none; }
+.hero .problema li { text-align: left; hyphens: none; }
